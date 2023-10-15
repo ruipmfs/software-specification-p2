@@ -1,0 +1,41 @@
+# This YAML template is designed for capturing information about discovered
+# vulnerabilities.
+
+report:
+  # Start of the first vulnerability report entry
+  - bug:
+      # 'type': The name of the type of vulnerability discovered, e.g.,
+      # Nullptr Dereference
+      type: Nullptr Dereference
+      # 'lineno': The number of the line where the bug was discovered
+      lineno: 106
+      # 'class' options:
+      #   - 'tp' (true positive) for confirmed vulnerabilities
+      #   - 'fp' (false positive) for incorrectly flagged issues
+      #   - 'fn' (false negative) for bugs identified manually
+      class: tp
+      # 'description': Additional details or context about the vulnerability
+      description: optional
+      # 'recommendation': Suggested actions or mitigations for the vulnerability
+      recommendation: optional
+  # End of the first vulnerability report entry
+
+  # Start of the second vulnerability report entry
+  - bug:
+      type: TODO
+      lineno: TODO
+      class: TODO
+      description: optional
+      recommendation: optional
+  # End of the second vulnerability report entry
+
+  # Start of the third vulnerability report entry
+  - bug:
+      type: TODO
+      lineno: TODO
+      class: TODO
+      description: optional
+      recommendation: optional
+  # End of the third vulnerability report entry
+
+  # You can continue adding more entries for additional vulnerabilities as needed.
