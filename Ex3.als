@@ -46,7 +46,7 @@ fact LstHasNullNNext {
 
 fact DistinctFrstAndLs {
   // Ensures that 'lst' is reachable from 'frst' by following 'nnext' links
-  all dl: HeadNode | dl.lst != none && dl.frst != none implies dl.lst in dl.frst.^nnext
+  all dl: HeadNode | dl.lst != none && dl.frst != none implies dl.lst in dl.frst.^nnext + dl.frst
 }
 
 fact HasLstandFrst{
