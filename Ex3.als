@@ -73,3 +73,108 @@ fact NoHeadNodeWithBothNone {
 
 //Ex 3.2
 run {} for exactly 2 HeadNode, exactly 5 Node
+
+//Ex 3.3
+
+-- Insert operation: Insert a node 'n' at the end of the doubly-linked list headed by 'hn'
+pred insert[n: Node, hn: HeadNode] {
+  -- Pre-conditions
+  -- Pre1 - 'n' is not already in the list
+  no (hn.frst.^nnext + hn.frst & n)
+  
+  -- Post-conditions
+  -- Post1 - 'n' becomes the new 'lst' of 'hn'
+  hn.lst' = n
+  -- Post2 - The old 'lst' becomes the 'nprev' of 'n'
+  n.nprev' = hn.lst
+  -- Post 3 - The 'n' becomes the 'nnext' of the old 'lst' 
+  hn.lst.nnext' = n
+  -- Post 4 - The new lst has the nnext set to none 
+  n.nnext' = none 
+  
+  -- Frame-conditions
+  -- Frame 1 - 'nprev' and 'nnext' relationships of other nodes do not change
+  all node: Node - (n + hn.lst) |  node.nprev' = node.nprev and node.nnext' = node.nnext
+  -- Frame 2 - 'frst' of 'hn' does not change
+  hn.frst' = hn.frst
+  -- Frame 3 - todos os prev ficam na mesma 
+  all node:Node - (n) | node.nprev' = node.nprev
+}
+
+
+-- Remove operation: Remove a node 'n' from the doubly-linked list headed by 'hn'
+pred remove[n: Node, hn: HeadNode] {
+  -- Pre-conditions
+  -- Pre1 - 'n' belongs to the list
+  n in hn.frst.^nnext + hn.frst
+  
+  -- Post-conditions
+
+  -- Caso 1 - Node está no meio da Lista 
+  (n != hn.frst && n != hn.lst )implies 
+    // Post 1 - O node anterior passa a ter como next o next de n 
+    n.nprev.nnext' = n.nnext 
+    // Post 2 - O node seguinte passa a ter como prev o prev de n
+    n.nnext.nprev' = n.nprev  
+    // Post 3 - Apagar o Node 
+    n' = none
+
+  -- Caso 2 - Node está no início da Lista 
+  (n = hn.frst && n != hn.lst ) implies 
+    // Post 1 - O novo frst é o nnext de n 
+    hn.frst' = n.nnext 
+    // Post 2 - O novo frst tem o nprev a none 
+    n.nnext.nprev' = none
+    // Post 3 - Apagar o Node 
+    n' = none
+
+  -- Caso 3 - Node está no fim da Lista 
+  (n != hn.frst && n = hn.lst ) implies
+    // Post 1 - O novo lst é o nprev de n 
+    hn.lst' = n.nprev and
+    // Post 2 - O novo lst tem o nnext a none 
+    n.nprev.nnext' = none
+    // Post 3 - Apagar o Node 
+    n' = none
+
+  -- Caso 4 - Node é o único da Lista 
+  (n = hn.frst && n = hn.lst ) implies
+    // Post 1 - The node before 'n' becomes the new 'nnext' of the node after 'n'
+    hn' = none 
+    // Post 2 - Apagar o Node 
+    n' = none 
+  
+  -- Frame-conditions
+  -- Caso 1
+  -- Frame 1 
+  all node: Node - (n + n.nprev + n.nnext) | (n != hn.frst && n != hn.lst) implies (node.nprev' = node.nprev and node.nnext' = node.nnext)
+  -- Frame 2
+  all node: Node - (n + n.nprev ) | (n != hn.frst && n != hn.lst) implies (node.nnext' = node.nnext)
+  -- Frame 3
+  all node: Node - (n + n.nnext ) | (n != hn.frst && n != hn.lst) implies (node.nprev' = node.nprev)
+  -- Frame4
+  (n != hn.frst && n != hn.lst) implies hn.frst' = hn.frst
+  -- Frame5
+  (n != hn.frst && n != hn.lst) implies hn.lst' = hn.lst
+
+  -- Caso 2
+
+  -- Frame 1
+  all n1:Node - (n) | (n = hn.frst && n != hn.lst) implies n1.nnext' = n1.nnext 
+  -- Frame 2
+  all n1:Node - (n + n.nnext) | n1.nprev' = n1.nprev
+  -- Frame 3
+  (n = hn.frst && n != hn.lst) implies hn.lst' = hn.lst
+
+  -- Caso 3
+
+  -- Frame 1
+  all n1:Node - (n) | (n != hn.frst && n = hn.lst) implies n1.nprev' = n1.nprev 
+  -- Frame 2
+  all n1:Node - (n + n.nprev) | (n != hn.frst && n = hn.lst) implies n1.nnext' = n1.nnext 
+  -- Frame 3
+  (n != hn.frst && n = hn.lst) implies hn.frst' = hn.frst
+
+  -- Caso 4
+  -- No Frame-conditions
+}
