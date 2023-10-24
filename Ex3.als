@@ -84,6 +84,8 @@ pred insert[n: Node, hn: HeadNode] {
   no (hn.frst.^nnext + hn.frst & n)
   -- Pre2 - 'n' is not attach to any list 
   no hnode: HeadNode |  n in (hnode.frst.^nnext + hnode.frst)
+  -- Pre3 - verify if the n.nnext and n.nprev is none
+  n.nnext = none and n.nprev = none
   
   -- Post-conditions
   -- Post1 - 'n' becomes the new 'lst' of 'hn'
