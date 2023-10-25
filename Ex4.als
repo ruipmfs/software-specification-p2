@@ -12,7 +12,18 @@ sig OrderedNode extends Node {
 
 fact OrderedNodesInAscendingOrder {
   // Ensure nodes are arranged in ascending order based on their "id"
-  all o1, o2: OrderedNode | o1 != o2 && o1.nnext = o2 implies o1.id.lt[o2.id]
+  always all o1, o2: OrderedNode | o1 != o2 && o1.nnext = o2 implies o1.id.lt[o2.id]
 }
 
-run {} for exactly 2 HeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node 
+fact AllNodesBelongToDoublyLinkedList {
+  //All nodes belong to one doubly-linked list
+  always all n: Id |  n in (OrderedNode.id)
+}
+
+fact DistinctFrstAndLst {
+  // Ensures that diferent HeadNodes are pointing to different lists
+  always all dl1, dl2: OrderedNode | dl1 != dl2  implies dl1.id != dl2.id
+}
+
+//Ex 4.2
+run { #HeadNode >= 2 && #Node >= 5 } for 6
