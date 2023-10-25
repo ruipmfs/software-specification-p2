@@ -3,77 +3,71 @@ module Ex3
 
 //Ex 3.1
 sig Node {
-  nprev: lone Node, // Each node has at most one previous node
-  nnext: lone Node  // Each node has at most one next node
+  var nprev: lone Node, // Each node has at most one previous node
+  var nnext: lone Node  // Each node has at most one next node
 }
 
 sig HeadNode {
-  frst: one Node,      // The doubly-linked list has a frst node
-  lst: one Node       // The doubly-linked list has a lst node
+  var frst: lone Node,      // The doubly-linked list has a frst node
+  var lst: lone Node       // The doubly-linked list has a lst node
 }
 
 //Relation between Nodes 
 fact NoCycles {
     // There are no cycles in the linked list
-  no n: Node | n in n.^nprev && n in n.^nnext
+  always no n: Node | n in n.^nprev && n in n.^nnext
 }
 
 fact NoSelfReference {
     // A node cannot refer to itself as the next or previous node 
-  all n: Node | n.nprev != n && n.nnext != n
+  always all n: Node | n.nprev != n && n.nnext != n
 }
 
 fact NNextNPrevRelationship {
     // Implies that if n2 is next to n1, then n1 is previous to n2  
-  all n1, n2: Node | n1.nnext = n2 implies n2.nprev = n1
+  always all n1, n2: Node | n1.nnext = n2 implies n2.nprev = n1
 }
 
 fact NPrevNNextRelationship {
     // Implies that if n2 is previous to n1, then n1 is next to n2 
-  all n1, n2: Node | n1.nprev = n2 implies n2.nnext = n1
+  always all n1, n2: Node | n1.nprev = n2 implies n2.nnext = n1
 }
 
 
 //Relation between HeadNode and Node
 fact FrstHasNullNPrev {
     // The first node has nprev equal to 'none'
-  all dl: HeadNode | dl.frst.nprev = none 
+  always all dl: HeadNode | dl.frst.nprev = none 
 }
 
 fact LstHasNullNNext {
     // The last node has nnext equal to 'none' 
-  all dl: HeadNode | dl.lst.nnext = none 
+  always all dl: HeadNode | dl.lst.nnext = none 
 }
-
-fact DistinctFrstAndLs {
+fact ReachableLstFromFrst {
   // Ensures that 'lst' is reachable from 'frst' by following 'nnext' links
-  all dl: HeadNode | dl.lst != none && dl.frst != none implies dl.lst in dl.frst.^nnext + dl.frst
+  always all dl: HeadNode | dl.lst != none && dl.frst != none implies dl.lst in dl.frst.*nnext 
 }
 
 fact HasLstandFrst{
     // Indicates that if there is a frst, there is also an lst, and vice-versa 
-    all dl : HeadNode | dl.lst != none implies dl.frst != none 
-    all dl : HeadNode | dl.frst != none implies dl.lst != none
+    always all dl : HeadNode | dl.lst != none implies dl.frst != none 
+    always all dl : HeadNode | dl.frst != none implies dl.lst != none
 }
 
 fact AllNodesBelongToDoublyLinkedList {
   //All nodes belong to one doubly-linked list
-  all n: Node | (n.nnext != none || n.nprev != none) implies n in (HeadNode.frst.^nnext + HeadNode.frst)
+  always all n: Node | (n.nnext != none || n.nprev != none) implies n in (HeadNode.frst.*nnext)
 }
 
 fact DistinctFrstAndLst {
   // Ensures that diferent HeadNodes are pointing to different lists
-  all dl1, dl2: HeadNode | dl1 != dl2 implies (dl1.lst != dl2.lst) && (dl1.frst != dl2.frst)
+  always all dl1, dl2: HeadNode | (dl1 != dl2) && (dl1.lst != none && dl2.lst != none) implies (dl1.lst != dl2.lst) && (dl1.frst != dl2.frst)
 }
 
-
-fact NoHeadNodeWithBothNone {
-  // A HeadNode needs at least one Node to exist
-  all dl: HeadNode | dl.lst != none && dl.frst != none
-}
 
 //Ex 3.2
-run {} for exactly 2 HeadNode, exactly 5 Node
+run { #HeadNode >= 2 && #Node >= 5 } for 8
 
 //Ex 3.3
 
@@ -81,21 +75,24 @@ run {} for exactly 2 HeadNode, exactly 5 Node
 pred insert[n: Node, hn: HeadNode] {
   -- Pre-conditions
   -- Pre1 - 'n' is not already in the list
-  no (hn.frst.^nnext + hn.frst & n)
+  //n !in hn.frst.*nnext + hn.frst
   -- Pre2 - 'n' is not attach to any list 
-  no hnode: HeadNode |  n in (hnode.frst.^nnext + hnode.frst)
+  all hnode: HeadNode | n !in (hnode.frst.*nnext )
   -- Pre3 - verify if the n.nnext and n.nprev is none
-  n.nnext = none and n.nprev = none
+  n.nnext = none  
+  n.nprev = none 
+  
   
   -- Post-conditions
-  -- Post1 - 'n' becomes the new 'lst' of 'hn'
-  hn.lst' = n
-  -- Post2 - The old 'lst' becomes the 'nprev' of 'n'
-  n.nprev' = hn.lst
   -- Post 3 - The 'n' becomes the 'nnext' of the old 'lst' 
   hn.lst.nnext' = n
+  -- Post2 - The old 'lst' becomes the 'nprev' of 'n'
+  n.nprev' = hn.lst
   -- Post 4 - The new lst has the nnext set to none 
   n.nnext' = none 
+  -- Post1 - 'n' becomes the new 'lst' of 'hn'
+  hn.lst' = n
+
   
   -- Frame-conditions
   -- Frame 1 - 'nprev' and 'nnext' relationships of other nodes do not change
@@ -104,17 +101,22 @@ pred insert[n: Node, hn: HeadNode] {
   hn.frst' = hn.frst
   -- Frame 3 - todos os prev ficam na mesma 
   all node:Node - (n) | node.nprev' = node.nprev
+  -- Frame 4 - everything stays the same for the rest of the headNodes 
+  all headNode : (HeadNode - hn) | headNode.frst'.*nnext = headNode.frst.*nnext 
 }
 
 -- Remove operation: Remove a node 'n' from the doubly-linked list headed by 'hn'
 pred remove[n: Node, hn: HeadNode] {
   -- Pre-conditions
   -- Pre 1 - 'n' belongs to the list
-  n in hn.frst.^nnext + hn.frst
+  n in hn.frst.*nnext 
 
   removeMiddleList[n,hn] //Case 1
+  or
   removeFrst[n,hn] //Case 2
+  or
   removeLst[n,hn] //Case 3
+  or
   removeOnly[n,hn] //Case 4 
 }
 
@@ -179,7 +181,7 @@ pred removeLst [n: Node, hn: HeadNode] {
 
   -- Post-conditions
   // Post 1 - O novo lst é o nprev de n 
-  hn.lst' = n.nprev and
+  hn.lst' = n.nprev 
   // Post 2 - O novo lst tem o nnext a none 
   n.nprev.nnext' = none
   // Post 3 - Apagar o Node da lista  
@@ -210,4 +212,14 @@ pred removeOnly [n: Node, hn: HeadNode] {
 
   -- Frame-conditions
   -- No Frame-conditions
+}
+
+//Ex3.4
+run { (eventually some hn:HeadNode, n:Node | insert[n,hn]) } 
+
+
+run {
+  /*(eventually some hn:HeadNode, n:Node | insert[n,hn]) 
+  and*/
+  (eventually some hn:HeadNode, n:Node | remove[n,hn])
 }
