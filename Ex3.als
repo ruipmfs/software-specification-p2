@@ -73,15 +73,22 @@ run { #HeadNode >= 2 && #Node >= 5 } for 8
 
 -- Insert operation: Insert a node 'n' at the end of the doubly-linked list headed by 'hn'
 pred insert[n: Node, hn: HeadNode] {
+  insertNoElements[n,hn] //Caso 1 
+  or
+  insertWithElements[n,hn]// Caso 2 
+}
+
+pred insertWithElements[n:Node, hn:HeadNode]{
   -- Pre-conditions
-  -- Pre1 - 'n' is not already in the list
-  //n !in hn.frst.*nnext + hn.frst
+  -- Pre1 - 'n' is not already in the list // Pre a mais pois a Pre2 inclui a Pre1
+  n !in hn.frst.*nnext 
   -- Pre2 - 'n' is not attach to any list 
-  all hnode: HeadNode | n !in (hnode.frst.*nnext )
+  n !in HeadNode.frst.*nnext
   -- Pre3 - verify if the n.nnext and n.nprev is none
-  n.nnext = none  
-  n.nprev = none 
-  
+  n.nnext = none  && n.nprev = none 
+  -- Pre4 - hn não é vazia 
+  hn.frst != none && hn.lst != none 
+
   
   -- Post-conditions
   -- Post 3 - The 'n' becomes the 'nnext' of the old 'lst' 
@@ -102,7 +109,28 @@ pred insert[n: Node, hn: HeadNode] {
   -- Frame 3 - todos os prev ficam na mesma 
   all node:Node - (n) | node.nprev' = node.nprev
   -- Frame 4 - everything stays the same for the rest of the headNodes 
-  all headNode : (HeadNode - hn) | headNode.frst'.*nnext = headNode.frst.*nnext 
+  all headNode : (HeadNode - hn) | headNode.frst' = headNode.frst and headNode.lst' = headNode.lst
+}
+
+
+pred insertNoElements[n: Node, hn: HeadNode]{
+  -- Pre-conditions
+  -- Pre 1 - 'n' is not attach to any list 
+  n ! in HeadNode.frst.*nnext
+  -- Pre 2 - verify if the n.nnext and n.nprev is none
+  n.nnext = none && n.nprev = none
+  -- Pre 3 hn nao tem elementos
+  hn.frst = none && hn.lst = none
+
+  -- Post-conditions
+  -- Post 3 - The 'n' becomes the 'nnext' of the old 'lst' 
+  hn.frst' = n
+  -- Post1 - 'n' becomes the new 'lst' of 'hn'
+  hn.lst' = n
+
+  -- Frame-conditions
+  all headNode : (HeadNode - hn) | headNode.frst'.*nnext = headNode.frst.*nnext  
+  all node : (Node - n ) | node.nnext' = node.nnext && node.nprev' = node.nprev  
 }
 
 -- Remove operation: Remove a node 'n' from the doubly-linked list headed by 'hn'
