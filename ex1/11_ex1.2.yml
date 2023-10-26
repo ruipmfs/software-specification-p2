@@ -1,30 +1,18 @@
 report:
   - bug 13:
       type: Nullptr Deference
-      lineno: 77
-      class: fn
-      description: 
-
-  - bug 14?:
-      type: Nullptr Deference
-      lineno: 100
-      class: fn
-      description:
-
-  - bug 15:
-      type: Nullptr Deference
-      lineno: 127
-      class: fn
-      description:
-      
-  - bug 16:
-      type: Nullptr Deference
-      lineno: 131
-      class: fn
-      description:
-
-  - bug 17:
-      type: Nullptr Deference
       lineno: 141
       class: fn
-      description:
+      description: realloc() might break when calling the field entries.
+
+  - bug 14:
+      type: Nullptr Deference
+      lineno: 118
+      class: fn
+      description: malloc() might break when calling the field entries, and consequently break on line 120.
+      
+  - bug 17:
+      type: Nullptr Deference
+      lineno: 61
+      class: fn
+      description: malloc() might break, causing it to break on line 77, when pointing to a field. Infer catches on line 76, but not on line 77.

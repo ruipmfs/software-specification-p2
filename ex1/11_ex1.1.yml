@@ -3,82 +3,82 @@ report:
       type: Null Dereference
       lineno: 76
       class: tp
-      description: "Null dereference when accessing 'map' without checking for null."
+      description: "Bug found with Infer. Null dereference when accessing 'map' without checking for null."
       recommendation: "Ensure that 'map' is not null before accessing its members."
   
   - bug 2:
       type: Memory Leak
       lineno: 130
       class: tp
-      description: "Memory leak when 'value' is not null and memory is allocated but not freed."
-      recommendation: "Free 'val' memory when it's no longer needed."
+      description: "Bug found with Infer. 'entries' variable does not free when calling hashmap_set()"
+      recommendation: "Free 'entries' memory when it's no longer needed."
   
   - bug 3:
       type: Memory Leak
       lineno: 156
-      class: tp
-      description: "Memory leak when 'val' is allocated but not freed before returning."
-      recommendation: "Free 'val' memory before returning."
+      class: fp
+      description: "Bug found with Infer. We need to return the pointer 'val', so we can't free it in the function"
+      recommendation: "Free the pointer 'ret' in the main()"
 
     - bug 4:
       type: Null Dereference
       lineno: 156
       class: tp
-      description: "Null dereference when accessing 'val' without checking for null."
+      description: "Bug found with Infer. Null dereference when accessing 'val' without checking for null."
       recommendation: "Ensure that 'val' is not null before accessing it."
   
   - bug 5:
       type: Nullptr Dereference
       lineno: 163
       class: tp
-      description: "Potential null pointer dereference when calling 'hashmap_new()'."
-      recommendation: "Ensure that the 'map' returned by 'hashmap_new()' is not null."
+      description: "Bug found with Infer. Potential null pointer dereference when calling 'hashmap_new()'."
+      recommendation: "Ensure that the 'fields' in hashmap_new() is not null when created"
 
   - bug 6:
       type: Null Dereference
       lineno: 72
       class: tp
-      description: "Dereferencing a null pointer when accessing 'field->size'."
+      description: "Bug found with Clang Analyzer. Dereferencing a null pointer when accessing 'field->size'."
       recommendation: "Ensure that 'field' is not null before accessing its members."
 
   - bug 7:
       type: Buffer Overflow
       lineno: 124
       class: tp
-      description: 
+      description: "Bug found with Clang Analyzer. sizeof() does not insure the length of the string is the correct length"
       recommendation: "Ensure that memory allocation is based on the appropriate size, such as 'strlen(key) + 1' for null-terminated strings."
 
   - bug 8:
       type: Memory Leak
       lineno: 170
-      class: fp
-      description: "Não é necessário dar free do ret"
-      recommendation: 
+      class: tp
+      description: "Bug found with Clang Analyzer. We need to free ret on main(), since it is returned from a malloc() in hashmap_get()"
+      recommendation: "Free ret on main()"
 
   - bug 9:
       type: Buffer Overflow
       lineno: 125
       class: tp
-      description: "Call to function 'strcpy' is insecure and may result in a buffer overflow, as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as 'strlcpy'. CWE-119 [security.insecureAPI.strcpy]"
-      recommendation: "Replace 'strcpy' with 'strncpy' and specify the maximum buffer size to prevent buffer overflows. Don't forget to terminate the string with a null character."
+      description: "Bug found with Clang Analyzer. Call to function 'strcpy' is insecure and may result in a buffer overflow, as it does not provide bounding of the memory buffer."
+      recommendation: "Replace 'strcpy' with 'strncpy' and specify the 'key' length (strlen(key)+1 for null-terminated strings)"
   
   - bug 10:
       type: Buffer Overflow
       lineno: 132
       class: tp
-      description: "Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provide boundary checks such as 'memcpy_s' in case of C11. [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      description: "Bug found with Clang Analyzer. Call to function 'memcpy' is insecure as it does not provide security checks."
       recommendation: "Replace 'memcpy' with 'memcpy_s' or other functions that provide length arguments to ensure secure memory copying."
 
   - bug 11:
       type: Buffer Overflow
       lineno: 138
       class: tp
-      description: "Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provide boundary checks such as 'memcpy_s' in case of C11. [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      description: "Bug found with Clang Analyzer. Call to function 'memcpy' is insecure as it does not provide security checks."
       recommendation: "Replace 'memcpy' with 'memcpy_s' or other functions that provide length arguments to ensure secure memory copying."
 
   - bug 12:
       type: Buffer Overflow
       lineno: 156
       class: tp
-      description: "Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provide boundary checks such as 'memcpy_s' in case of C11. [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      description: "Bug found with Clang Analyzer. Call to function 'memcpy' is insecure as it does not provide security checks."
       recommendation: "Replace 'memcpy' with 'memcpy_s' or other functions that provide length arguments to ensure secure memory copying."
