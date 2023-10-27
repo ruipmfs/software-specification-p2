@@ -136,8 +136,6 @@ pred insertNoElements[n: Node, hn: HeadNode]{
 -- Remove operation: Remove a node 'n' from the doubly-linked list headed by 'hn'
 pred remove[n: Node, hn: HeadNode] {
   -- Pre-conditions
-  -- Pre 1 - 'n' belongs to the list
-  n in hn.frst.*nnext 
 
   removeMiddleList[n,hn] //Case 1
   or
@@ -148,18 +146,20 @@ pred remove[n: Node, hn: HeadNode] {
   removeOnly[n,hn] //Case 4 
 }
 
-//Caso 1
+//Case 1
 pred removeMiddleList[n: Node, hn: HeadNode] {
   -- Pre-condition
-  -- Caso 1 - Node está no meio da Lista
+  -- Pre 1 - 'n' belongs to the list
+  n in hn.frst.*nnext 
+  -- Pre 2 - Node is in the middle of the list
   n != hn.frst && n != hn.lst
 
   -- Post-conditions
-  // Post 1 - O node anterior passa a ter como next o next de n 
+  // Post 1 - The previous node now has the next of the removed node as next
   n.nprev.nnext' = n.nnext 
-  // Post 2 - O node seguinte passa a ter como prev o prev de n
+  // Post 2 - The next node (of n) now has the prev of the removed node
   n.nnext.nprev' = n.nprev  
-  // Post 3 - Apagar o Node da lista  
+  // Post 3 - removes the node from the list
   n.nnext' = none
   n.nprev' = none
 
@@ -174,21 +174,25 @@ pred removeMiddleList[n: Node, hn: HeadNode] {
   hn.frst' = hn.frst
   -- Frame5
   hn.lst' = hn.lst
+  -- Frame 6
+  all headNode : (HeadNode - hn) | headNode.frst' = headNode.frst and headNode.lst' = headNode.lst
 
 }
 
-//Caso 2
+//Case 2
 pred removeFrst [n: Node, hn: HeadNode] {
   -- Pre-condition
-  -- Caso 2 - Node está no início da Lista
+  -- Pre 1 - 'n' belongs to the list
+  n in hn.frst.*nnext 
+  -- Pre 2 - Node está no início da Lista
   n = hn.frst && n != hn.lst
 
   -- Post-conditions
-  // Post 1 - O novo frst é o nnext de n 
+  // Post 1 - the new frst is the next of the removed node
   hn.frst' = n.nnext 
-  // Post 2 - O novo frst tem o nprev a none 
+  // Post 2 - the new frst now has a null prev
   n.nnext.nprev' = none 
-  // Post 3 - Apagar o Node da lista  
+  // Post 3 - removes the node from the list 
   n.nnext' = none
   n.nprev' = none
 
@@ -199,20 +203,24 @@ pred removeFrst [n: Node, hn: HeadNode] {
   all n1:Node - (n + n.nnext) | n1.nprev' = n1.nprev
   -- Frame 3
   hn.lst' = hn.lst
+  -- Frame 4
+  all headNode : (HeadNode - hn) | headNode.frst' = headNode.frst and headNode.lst' = headNode.lst
 }
 
-//Caso 3
+//Cas2 3
 pred removeLst [n: Node, hn: HeadNode] {
   -- Pre-condition
-  -- Caso 3 - Node está no fim da Lista 
+  -- Pre 1 - 'n' belongs to the list
+  n in hn.frst.*nnext 
+  -- Pre 2 - The node is the last of the list
   n != hn.frst && n = hn.lst
 
   -- Post-conditions
-  // Post 1 - O novo lst é o nprev de n 
+  // Post 1 - the new last is the prev of the removed node
   hn.lst' = n.nprev 
-  // Post 2 - O novo lst tem o nnext a none 
+  // Post 2 - the next of the new last is now null
   n.nprev.nnext' = none
-  // Post 3 - Apagar o Node da lista  
+  // Post 3 - removes the node from the list  
   n.nnext' = none
   n.nprev' = none
 
@@ -223,31 +231,35 @@ pred removeLst [n: Node, hn: HeadNode] {
   all n1:Node - (n + n.nprev) |  n1.nnext' = n1.nnext 
   -- Frame 3
   hn.frst' = hn.frst
+  -- Frame 4
+  all headNode : (HeadNode - hn) | headNode.frst' = headNode.frst and headNode.lst' = headNode.lst
 }
 
-//Caso 4
+//Case 4
 pred removeOnly [n: Node, hn: HeadNode] {
   -- Pre-condition
-  -- Caso 4 - Node é o único da Lista
+  -- Pre 1 - 'n' belongs to the list
+  n in hn.frst.*nnext 
+  -- Pre 2 - the node to be removed is the only one in the list
   n = hn.frst && n = hn.lst
 
   -- Post-conditions
   // Post 1 - The node before 'n' becomes the new 'nnext' of the node after 'n'
   hn' = none
-  // Post 2 - Apagar o Node da lista  
+  // Post 2 - removes the node from the list 
   n.nnext' = none
   n.nprev' = none
 
   -- Frame-conditions
-  -- No Frame-conditions
+  -- Frame 1
+  all node: Node - (n) |  node.nprev' = node.nprev and node.nnext' = node.nnext
+  -- Frame 2
+  all headNode : (HeadNode - hn) | headNode.frst' = headNode.frst and headNode.lst' = headNode.lst
 }
 
 //Ex3.4
-run { (eventually some hn:HeadNode, n:Node | insert[n,hn]) } 
-
-
 run {
-  /*(eventually some hn:HeadNode, n:Node | insert[n,hn]) 
-  and*/
+  (eventually some hn:HeadNode, n:Node | insert[n,hn]) 
+  and
   (eventually some hn:HeadNode, n:Node | remove[n,hn])
 }
